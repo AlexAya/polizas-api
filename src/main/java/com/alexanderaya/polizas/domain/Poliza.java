@@ -2,6 +2,7 @@ package com.alexanderaya.polizas.domain;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,21 @@ public class Poliza {
 
     protected Poliza() {
         // Requerido por JPA
+    }
+
+    public Poliza(String numero, TipoPoliza tipo, String tomador, LocalDate fechaInicio,
+                  Integer mesesVigencia, BigDecimal canonMensual) {
+        this.numero = numero;
+        this.tipo = tipo;
+        this.tomador = tomador;
+        this.fechaInicio = fechaInicio;
+        this.mesesVigencia = mesesVigencia;
+        this.canonMensual = canonMensual;
+        // Regla: la vigencia termina el día anterior a cumplir los meses contratados
+        this.fechaFin = fechaInicio.plusMonths(mesesVigencia).minusDays(1);
+        // Regla: prima = canon mensual x meses de vigencia
+        this.prima = canonMensual.multiply(BigDecimal.valueOf(mesesVigencia)).setScale(2, RoundingMode.HALF_UP);
+        this.estado = EstadoPoliza.ACTIVA;
     }
 
     public boolean esIndividual() {
